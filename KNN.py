@@ -6,41 +6,8 @@
 
 import pandas as pd
 import numpy as np
-#import timeit
 
-#start = timeit.default_timer()
-
-# Tested various K's and training set sizes. Here were the results:
-
-# Full training data set
-# k = 5 = 69.25 % 15 min 
-# k = 10 = 71.26% 15 min
-# k = 25 = 71.79 % 15 min
-# k = 100 = 71.16 % 15 min
-
-# 500 row training data set
-# k = 5 = 63.63 % < 1 min 
-# k = 10 = 65.75 % < 1 min
-# k = 25 = 68.29 % < 1 min
-# k = 30 = 68.93 % < 1 min
-# k = 100 = 67.97 % < 1 min
-
-# 5000 row training data set
-# k = 5 = 67.23 % 2 min 
-# k = 10 = 68.82 % 2 min 
-# k = 25 = 70.52 % 2 min 
-# k = 30 = 70.63 % 2 min 
-# k = 50 = 70.31 % 2 min 
-# k = 100 = 70.1 % 2 min 
-
-# 15000 row training data set
-# k = 30 = 70.63 % 6 min 
-
-# 2500 row training data set
-# k = 30 = 69.78 % % 1 min 
-
-# 7500 row training data set
-# k = 30 = 70.41 % % % 1 min 
+# Tested various K's and training set sizes. All testing results are included in our Markdown report
 
 # Set k to best tested value
 k = 30
@@ -112,9 +79,6 @@ def knn_testing(model_file, test_file):
     
     pred_counts = np.where(final_preds[1] == final_preds[2], 1, 0)
     output = final_preds[[0, 2]]
-    
-    #stop = timeit.default_timer()
-    #print('Time: ', stop - start) 
     
     output.to_csv('output.txt', header=None, index=None, sep=' ', mode='a')
     
