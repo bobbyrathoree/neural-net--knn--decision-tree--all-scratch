@@ -86,6 +86,7 @@ def knn_testing(model_file, test_file):
     
     print ("KNN testing accuracy:", np.round((sum(pred_counts) / len(pred_counts)) * 100, 2), "%")
 
+'''
 # Change these to sys args when ready for submission
 training_file = 'train-data.txt'
 test_file = 'test-data.txt'
@@ -93,3 +94,4 @@ model_file = 'model_file.txt'
 
 knn_training(training_file, model_file)
 knn_testing(model_file, test_file)
+'''
