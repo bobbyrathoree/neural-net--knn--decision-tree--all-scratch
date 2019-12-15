@@ -30,9 +30,13 @@ if __name__ == "__main__":
                 images_data_vector=data_vector,
                 all_images_ids=all_image_ids,
                 images_counter=images_counter,
+                decision_stumps=30,
+                test_file_path="test_file.txt"
             )
             trainingObj.train()
-            pickle.dump(trainingObj, open('training_obj', "wb"))
+            pickle.dump(trainingObj, open('training_obj_2', "wb"))
+            # trainingObj = pickle.load(open('training_obj', "rb"))
+            # trainingObj.test()
 
         print("Nothing here yet")
     elif model == "nnet":
