@@ -1,8 +1,16 @@
 from sklearn.model_selection import StratifiedKFold
 
-from nn_process_images import load_data
-from nn_utils import one_hot_decision_function, categorical_crossentropy, accuracy_score, RMSProp, CustomKFold, \
-    to_categorical, Stopwatch
+from nn_process_images import load_data_from_scratch, load_data
+from nn_utils import (
+    one_hot_decision_function,
+    categorical_crossentropy,
+    accuracy_score,
+    RMSProp,
+    CustomKFold,
+    to_categorical,
+    Stopwatch,
+    calculate_loss_gradient,
+)
 import numpy as np
 
 
@@ -14,12 +22,12 @@ class NeuralNetwork(object):
     """
 
     def __init__(
-            self,
-            layers=None,
-            n_batches=10,
-            optimizer_params=None,
-            shuffle=True,
-            random_seed=None,
+        self,
+        layers=None,
+        n_batches=10,
+        optimizer_params=None,
+        shuffle=True,
+        random_seed=None,
     ):
         self.X = None
         self.y = None
@@ -32,7 +40,7 @@ class NeuralNetwork(object):
         self.random_seed = random_seed
 
         self.loss_function = categorical_crossentropy
-        self.loss_grad = lambda actual, predicted: -(actual - predicted)
+        self.loss_grad = calculate_loss_gradient
         self.metric = accuracy_score
         self.optimizer = RMSProp(**self.optimizer_params)
         self.custom_split_function = CustomKFold(
@@ -82,7 +90,7 @@ class NeuralNetwork(object):
 
     def batch_iteration(self):
         for indices in self.custom_split_function.make_k_folds(
-                self.y, n_folds=self.n_batches
+            self.y, n_folds=self.n_batches
         ):
             yield self.X[indices], self.y[indices]
 
@@ -104,9 +112,9 @@ class NeuralNetwork(object):
         setattr(self.optimizer, "learning_rate", 5e-5)
 
         if (
-                "verbose" in self.optimizer_params
-                and self.optimizer_params["verbose"]
-                and X_val is not None
+            "verbose" in self.optimizer_params
+            and self.optimizer_params["verbose"]
+            and X_val is not None
         ):
             print(
                 "Total samples: {0}\nTraining samples: {1}\nValidating samples: {2}\n".format(
