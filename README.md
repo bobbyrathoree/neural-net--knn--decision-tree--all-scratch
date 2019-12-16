@@ -82,3 +82,11 @@ Epochs: 35 <br/>
 |   3  |       79.32%      |        74.90%       |      71.12%      | 1066 seconds |
 |   4  |       81.11%      |        77.41%       |      74.36%      | 1132 seconds |
 |   5  |       79.81%      |        73.15%       |      69.45%      | 1040 seconds |
+
+
+## Decision Tree
+
+We went with Adaboost decision tree for this part. It works by putting more weight on difficult to classify instances and less on those already handled well. Although we're going to be using adaboost for classifying orientation, it can also be used for regression.
+
+In Adaboost decision tree, we implement the simple concept of stumps. Decision tree stumps are the simplest model we could construct that would just guess the same label for every new image, no matter what it looked like. The accuracy would be best if we guess whichever answer, 0, 1(90), 2(180) or 3(270), is most common in the data. If, say, 60% of the examples are 90 degrees oriented, then we’ll get 60% accuracy just by guessing 1 every time. Simple as that.
+To approach this we relied heavily on online articles like [this](https://towardsdatascience.com/understanding-adaboost-2f94f22d5bfe) and [this](https://machinelearningmastery.com/boosting-and-adaboost-for-machine-learning/). We had to choose a certain number of random combinations of pixel pairs. After training and testing out our model on several varying number of combinations, we arrived at 1000 which gave us a decent accuracy in a reasonable amount of time.
