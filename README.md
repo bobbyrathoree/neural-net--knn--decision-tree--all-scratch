@@ -54,9 +54,13 @@ This was the data pre-processing and augmentation step. Before starting training
 
 ### Results
 (BEST)
+
 Dense Layers: 2
+
 Neurons: 300, 300
+
 Dropout values: 0.2, 0.2
+
 Epochs: 35
 
 | Fold | Training accuracy | Validation accuracy | Testing accuracy | Running time |
@@ -68,9 +72,13 @@ Epochs: 35
 |   5  |       86.14%      |        78.97%       |      78.20%      |  833 seconds |
 
 
+
 Dense Layers: 3
+
 Neurons: 256, 256, 128
+
 Dropout values: 0.2, 0.2, 0.2
+
 Epochs: 35
 
 | Fold | Training accuracy | Validation accuracy | Testing accuracy | Running time |
