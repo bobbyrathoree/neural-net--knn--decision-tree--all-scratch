@@ -55,17 +55,14 @@ This was the data pre-processing and augmentation step. Before starting training
 ### Results
 (BEST)
 
-Dense Layers: 2
-
-Neurons: 300, 300
-
-Dropout values: 0.2, 0.2
-
-Epochs: 35
+Dense Layers: 2 <br/>
+Neurons: 300, 300 <br/>
+Dropout values: 0.2, 0.2 <br/>
+Epochs: 35 <br/>
 
 | Fold | Training accuracy | Validation accuracy | Testing accuracy | Running time |
 |:----:|:-----------------:|:-------------------:|:----------------:|:------------:|
-|   1  |       81.09%      |        76.11%       |       75.8%      |  839 seconds |
+|   1  |       81.09%      |        76.11%       |      75.80%      |  839 seconds |
 |   2  |       84.27%      |        77.18%       |      76.10%      |  820 seconds |
 |   3  |       80.03%      |        74.76%       |      74.99%      |  821 seconds |
 |   4  |       81.88%      |        75.02%       |      73.35%      |  829 seconds |
@@ -73,13 +70,10 @@ Epochs: 35
 
 
 
-Dense Layers: 3
-
-Neurons: 256, 256, 128
-
-Dropout values: 0.2, 0.2, 0.2
-
-Epochs: 35
+Dense Layers: 3 <br/>
+Neurons: 256, 256, 128 <br/>
+Dropout values: 0.2, 0.2, 0.2 <br/>
+Epochs: 35 <br/>
 
 | Fold | Training accuracy | Validation accuracy | Testing accuracy | Running time |
 |:----:|:-----------------:|:-------------------:|:----------------:|:------------:|
