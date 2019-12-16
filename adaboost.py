@@ -387,16 +387,13 @@ class AdaBoost:
             ] += 1
 
             print(
-                "Found orientation for: ",
-                each_line_split[0],
-                ": ",
-                str(inferred_orientation),
-                "Original orientation (given in Train): ",
-                each_line_split[1],
+                "Image: {0}\nInferred orientation: {1}\nActual Orientation: {2}\n--------------------------".format(
+                    each_line_split[0], str(inferred_orientation), each_line_split[1]
+                )
             )
         file.close()
         print(
-            "\nAccuracy Percentage: {0}%".format(
+            "\nAccuracy: {0}%".format(
                 round(
                     sum([self.confusion_matrix[i][i] for i in range(4)])
                     * 100.0
