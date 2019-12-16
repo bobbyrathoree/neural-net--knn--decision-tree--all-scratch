@@ -51,3 +51,32 @@ test_mapping = {
 
 
 This was the data pre-processing and augmentation step. Before starting training, we added 5 fold cross validation to the model using a little helper function from sklearn. It simply splits the training dataset into 5 random folds: (32000 random training samples + 8000 random validation samples) x 5. We added 2 dense layers with ReLU as the activation function and the final dense layer with 4 nodes (one for each orientation degree) and softmax for classification. Choosing the learning rate for RMSProp was tricky since we didn't want to overshoot with a larger value, so we went with 0.00005 to be safe. Training is done in 1024 mini batches, both forward and backward pass. Iterating through batches was done through a custom k fold class. Each layer (Dense, Activation and Dropout) has its own forward pass and backward pass function. We went with categorical crossentropy as the loss function since it seems to be the standard for classification problems. Upon training, validation was done with accuracy as a metric. The training and validation loss and accuracy is shown for each epoch, given verbose is set to True. Once the training is complete, the train() function returns the best model (fold) to evaluate on the test data. Average training and validation accuracies at the end of training each fold is around 80-85%. Average test accuracies range from 75-79%.
+
+### Results
+(BEST)
+Dense Layers: 2
+Neurons: 300, 300
+Dropout values: 0.2, 0.2
+Epochs: 35
+
+| Fold | Training accuracy | Validation accuracy | Testing accuracy | Running time |
+|:----:|:-----------------:|:-------------------:|:----------------:|:------------:|
+|   1  |       81.09%      |        76.11%       |       75.8%      |  839 seconds |
+|   2  |       84.27%      |        77.18%       |      76.10%      |  820 seconds |
+|   3  |       80.03%      |        74.76%       |      74.99%      |  821 seconds |
+|   4  |       81.88%      |        75.02%       |      73.35%      |  829 seconds |
+|   5  |       86.14%      |        78.97%       |      78.20%      |  833 seconds |
+
+
+Dense Layers: 3
+Neurons: 256, 256, 128
+Dropout values: 0.2, 0.2, 0.2
+Epochs: 35
+
+| Fold | Training accuracy | Validation accuracy | Testing accuracy | Running time |
+|:----:|:-----------------:|:-------------------:|:----------------:|:------------:|
+|   1  |       78.44%      |        72.74%       |      70.00%      | 1021 seconds |
+|   2  |       80.03%      |        74.52%       |      72.51%      | 1105 seconds |
+|   3  |       79.32%      |        74.90%       |      71.12%      | 1066 seconds |
+|   4  |       81.11%      |        77.41%       |      74.36%      | 1132 seconds |
+|   5  |       79.81%      |        73.15%       |      69.45%      | 1040 seconds |
