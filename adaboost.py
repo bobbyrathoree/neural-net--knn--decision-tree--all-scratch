@@ -1,6 +1,8 @@
+from __future__ import division
+
 from collections import defaultdict
-from copy import deepcopy
 import random
+from copy import deepcopy
 from math import log
 
 
@@ -14,21 +16,19 @@ class DecisionTreeStump(object):
         return self.first_pixel_index, self.second_pixel_index, self.alpha_value
 
 
-class AdaBoost(object):
+class AdaBoost:
     def __init__(
         self,
+        decision_stumps,
         images_data_vector: list = None,
         all_images_ids: defaultdict = None,
         images_counter: int = 0,
-        decision_stumps: int = 30,
-        test_file_path: str = None,
     ):
         self.decision_tree_stumps = decision_stumps
-        self.images_data_vector = images_data_vector
         self.all_images_ids = all_images_ids
+        self.images_data_vector = images_data_vector
         self.total_images = images_counter
-        self.test_file_path = test_file_path
-        self.combinations = set(tuple())
+        self.combinations = set([])
         self.optimization_vector_size = [i for i in range(self.total_images)]
         self.confusion_matrix = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
 
@@ -56,135 +56,48 @@ class AdaBoost(object):
             deepcopy(self.weights_for_0_degrees),
         )
 
-    def train(self):
-        self.set_random_combinations()
-
-        for i in range(self.decision_tree_stumps):
-            for one_combination_of_index in self.combinations:
-                self.get_maximum_details(*one_combination_of_index)
-
-            beta_value_for_0_degrees, beta_value_for_90_degrees, beta_value_for_180_degrees, beta_value_for_270_degrees = map(
-                self.get_beta,
-                [
-                    self.maximum_details_for_0_degrees[0],
-                    self.maximum_details_for_90_degrees[0],
-                    self.maximum_details_for_180_degrees[0],
-                    self.maximum_details_for_270_degrees[0],
-                ],
-            )
-
-            alpha0, alpha90, alpha180, alpha270 = map(
-                self.get_alpha,
-                [
-                    beta_value_for_0_degrees,
-                    beta_value_for_90_degrees,
-                    beta_value_for_180_degrees,
-                    beta_value_for_270_degrees,
-                ],
-            )
-
-            self.append_best_stump(
-                self.maximum_details_for_0_degrees[2:4],
-                self.maximum_details_for_90_degrees[2:4],
-                self.maximum_details_for_180_degrees[2:4],
-                self.maximum_details_for_270_degrees[2:4],
-                alpha0,
-                alpha90,
-                alpha180,
-                alpha270,
-            )
-
-            self.update_weights(
-                self.maximum_details_for_0_degrees[1],
-                self.maximum_details_for_90_degrees[1],
-                self.maximum_details_for_180_degrees[1],
-                self.maximum_details_for_270_degrees[1],
-                beta_value_for_0_degrees,
-                beta_value_for_90_degrees,
-                beta_value_for_180_degrees,
-                beta_value_for_270_degrees,
-            )
-
-            self.normalize_weights()
-
-    def test(self):
-        file = open(self.test_file_path, "r")
-        for image in file.read().split("\n"):
-            if image == "":
-                break
-            each_line_split = image.split()
-            testing_image = [int(pixel) for pixel in each_line_split[2:]]
-            inferred_orientation = self.infer_orientation(testing_image)
-
-            self.confusion_matrix[int(int(each_line_split[1]) / 90)][
-                int(inferred_orientation / 90)
-            ] += 1
-
-            # self.outputFile.write(
-            #     each_line_split[0]
-            #     + Constants.SPACE
-            #     + str(inferred_orientation)
-            #     + Constants.NEW_LINE
-            # )
-            # if predictedOrientation != int(imageList[Constants.ONE]):
-            print(
-                "Found orientation for: ",
-                each_line_split[0],
-                ": ",
-                str(inferred_orientation),
-                "Original orientation (given in Train): ",
-                each_line_split[1],
-            )
-        file.close()
-        print(
-            "\nAccuracy Percentage: {0}%".format(
-                round(
-                    sum([self.confusion_matrix[i][i] for i in range(4)])
-                    * 100.0
-                    / sum(
-                        [
-                            self.confusion_matrix[i][j]
-                            for i in range(4)
-                            for j in range(4)
-                        ]
-                    ),
-                    2,
+    def update_maximum_details(
+        self,
+        current_score,
+        current_indexes,
+        current_first_pixel,
+        current_second_pixel,
+        class_type,
+    ):
+        if class_type == 0:
+            if current_score > self.maximum_details_for_0_degrees[0]:
+                self.maximum_details_for_0_degrees = (
+                    current_score,
+                    current_indexes,
+                    current_first_pixel,
+                    current_second_pixel,
                 )
-            )
-        )
-
-    def infer_orientation(self, testing_image):
-        orientation = 0
-        vote = self.get_positive_votes(testing_image, self.stumps_for_0_degrees)
-
-        next_vote = self.get_positive_votes(testing_image, self.stumps_for_90_degrees)
-        if next_vote > vote:
-            orientation = 90
-            vote = next_vote
-
-        next_vote = self.get_positive_votes(testing_image, self.stumps_for_180_degrees)
-        if next_vote > vote:
-            orientation = 180
-            vote = next_vote
-
-        next_vote = self.get_positive_votes(testing_image, self.stumps_for_270_degrees)
-        if next_vote > vote:
-            orientation = 270
-            vote = next_vote
-
-        return orientation
-
-    def set_random_combinations(self):
-        for i in range(2500):
-            first_idx, second_idx = random.randint(0, 191), random.randint(0, 191)
-            while (
-                first_idx == second_idx or (first_idx, second_idx) in self.combinations
-            ):
-                first_idx, second_idx = random.randint(0, 191), random.randint(0, 191)
-            self.combinations.add((first_idx, second_idx))
+        elif class_type == 90:
+            if current_score > self.maximum_details_for_90_degrees[0]:
+                self.maximum_details_for_90_degrees = (
+                    current_score,
+                    current_indexes,
+                    current_first_pixel,
+                    current_second_pixel,
+                )
+        elif class_type == 180:
+            if current_score > self.maximum_details_for_180_degrees[0]:
+                self.maximum_details_for_180_degrees = (
+                    current_score,
+                    current_indexes,
+                    current_first_pixel,
+                    current_second_pixel,
+                )
+        else:
+            if current_score > self.maximum_details_for_270_degrees[0]:
+                self.maximum_details_for_270_degrees = (
+                    current_score,
+                    current_indexes,
+                    current_first_pixel,
+                    current_second_pixel,
+                )
 
     def get_maximum_details(self, first_position, second_position):
-        # Store the indexes of the images which were correctly classified
         classified_indexes_for_0_degrees, score_for_0_degrees = [], 0
         classified_indexes_for_90_degrees, score_for_90_degrees = [], 0
         classified_indexes_for_180_degrees, score_for_180_degrees = [], 0
@@ -331,46 +244,11 @@ class AdaBoost(object):
             270,
         )
 
-    def update_maximum_details(
-        self,
-        current_score,
-        current_indexes,
-        current_first_pixel,
-        current_second_pixel,
-        class_type,
-    ):
-        if class_type == 0:
-            if current_score > self.maximum_details_for_0_degrees[0]:
-                self.maximum_details_for_0_degrees = (
-                    current_score,
-                    current_indexes,
-                    current_first_pixel,
-                    current_second_pixel,
-                )
-        elif class_type == 90:
-            if current_score > self.maximum_details_for_90_degrees[0]:
-                self.maximum_details_for_90_degrees = (
-                    current_score,
-                    current_indexes,
-                    current_first_pixel,
-                    current_second_pixel,
-                )
-        elif class_type == 180:
-            if current_score > self.maximum_details_for_180_degrees[0]:
-                self.maximum_details_for_180_degrees = (
-                    current_score,
-                    current_indexes,
-                    current_first_pixel,
-                    current_second_pixel,
-                )
-        else:
-            if current_score > self.maximum_details_for_270_degrees[0]:
-                self.maximum_details_for_270_degrees = (
-                    current_score,
-                    current_indexes,
-                    current_first_pixel,
-                    current_second_pixel,
-                )
+    def set_initial_maximum_details(self):
+        self.maximum_details_for_0_degrees = (-1, 0, 0, 0)
+        self.maximum_details_for_90_degrees = (-1, 0, 0, 0)
+        self.maximum_details_for_180_degrees = (-1, 0, 0, 0)
+        self.maximum_details_for_270_degrees = (-1, 0, 0, 0)
 
     def append_best_stump(
         self,
@@ -395,6 +273,18 @@ class AdaBoost(object):
         self.stumps_for_270_degrees.append(
             self.get_stump(best_indexes_for_270_degrees, alpha_value_for_270_degrees)
         )
+
+    def normalize_weights(self):
+        total_0 = sum(self.weights_for_0_degrees.values())
+        total_90 = sum(self.weights_for_90_degrees.values())
+        total_180 = sum(self.weights_for_180_degrees.values())
+        total_270 = sum(self.weights_for_270_degrees.values())
+
+        for each_vector in self.optimization_vector_size:
+            self.weights_for_0_degrees[str(each_vector)] /= total_0
+            self.weights_for_90_degrees[str(each_vector)] /= total_90
+            self.weights_for_180_degrees[str(each_vector)] /= total_180
+            self.weights_for_270_degrees[str(each_vector)] /= total_270
 
     def update_weights(
         self,
@@ -451,17 +341,134 @@ class AdaBoost(object):
                 else current_weight_for_270_degrees
             )
 
-    def normalize_weights(self):
-        total_0 = sum(self.weights_for_0_degrees.values())
-        total_90 = sum(self.weights_for_90_degrees.values())
-        total_180 = sum(self.weights_for_180_degrees.values())
-        total_270 = sum(self.weights_for_270_degrees.values())
+        self.normalize_weights()
 
-        for each_vector in self.optimization_vector_size:
-            self.weights_for_0_degrees[str(each_vector)] /= total_0
-            self.weights_for_90_degrees[str(each_vector)] /= total_90
-            self.weights_for_180_degrees[str(each_vector)] /= total_180
-            self.weights_for_270_degrees[str(each_vector)] /= total_270
+    def infer_orientation(self, testing_image):
+        orientation = 0
+        vote = self.get_positive_votes(testing_image, self.stumps_for_0_degrees)
+
+        next_vote = self.get_positive_votes(testing_image, self.stumps_for_90_degrees)
+        if next_vote > vote:
+            orientation = 90
+            vote = next_vote
+
+        next_vote = self.get_positive_votes(testing_image, self.stumps_for_180_degrees)
+        if next_vote > vote:
+            orientation = 180
+            vote = next_vote
+
+        next_vote = self.get_positive_votes(testing_image, self.stumps_for_270_degrees)
+        if next_vote > vote:
+            orientation = 270
+            vote = next_vote
+
+        return orientation
+
+    def set_random_combinations(self):
+        for i in range(1000):
+            first_idx, second_idx = random.randint(0, 191), random.randint(0, 191)
+            while (
+                first_idx == second_idx or (first_idx, second_idx) in self.combinations
+            ):
+                first_idx, second_idx = random.randint(0, 191), random.randint(0, 191)
+            self.combinations.add((first_idx, second_idx))
+
+    def test(self, test_file_path):
+        file = open(test_file_path, "r")
+        for image in file.read().split("\n"):
+            if image == "":
+                break
+            each_line_split = image.split()
+            testing_image = [int(pixel) for pixel in each_line_split[2:]]
+            inferred_orientation = self.infer_orientation(testing_image)
+
+            self.confusion_matrix[int(int(each_line_split[1]) / 90)][
+                int(inferred_orientation / 90)
+            ] += 1
+
+            print(
+                "Found orientation for: ",
+                each_line_split[0],
+                ": ",
+                str(inferred_orientation),
+                "Original orientation (given in Train): ",
+                each_line_split[1],
+            )
+        file.close()
+        print(
+            "\nAccuracy Percentage: {0}%".format(
+                round(
+                    sum([self.confusion_matrix[i][i] for i in range(4)])
+                    * 100.0
+                    / sum(
+                        [
+                            self.confusion_matrix[i][j]
+                            for i in range(4)
+                            for j in range(4)
+                        ]
+                    ),
+                    2,
+                )
+            )
+        )
+
+    def train(self):
+        self.set_random_combinations()
+
+        for i in range(self.decision_tree_stumps):
+            print(i, "stump")
+            self.set_initial_maximum_details()
+
+            for indexes in self.combinations:
+                self.get_maximum_details(*indexes)
+
+            beta_value_for_0_degrees, beta_value_for_90_degrees, beta_value_for_180_degrees, beta_value_for_270_degrees = map(
+                self.get_beta,
+                [
+                    self.maximum_details_for_0_degrees[0],
+                    self.maximum_details_for_90_degrees[0],
+                    self.maximum_details_for_180_degrees[0],
+                    self.maximum_details_for_270_degrees[0],
+                ],
+            )
+            alpha_value_for_0_degrees, alpha_value_for_90_degrees, alpha_value_for_180_degrees, alpha_value_for_270_degrees = map(
+                self.get_alpha,
+                [
+                    beta_value_for_0_degrees,
+                    beta_value_for_90_degrees,
+                    beta_value_for_180_degrees,
+                    beta_value_for_270_degrees,
+                ],
+            )
+            self.append_best_stump(
+                self.maximum_details_for_0_degrees[2:4],
+                self.maximum_details_for_90_degrees[2:4],
+                self.maximum_details_for_180_degrees[2:4],
+                self.maximum_details_for_270_degrees[2:4],
+                alpha_value_for_0_degrees,
+                alpha_value_for_90_degrees,
+                alpha_value_for_180_degrees,
+                alpha_value_for_270_degrees,
+            )
+
+            self.update_weights(
+                self.maximum_details_for_0_degrees[1],
+                self.maximum_details_for_90_degrees[1],
+                self.maximum_details_for_180_degrees[1],
+                self.maximum_details_for_270_degrees[1],
+                beta_value_for_0_degrees,
+                beta_value_for_90_degrees,
+                beta_value_for_180_degrees,
+                beta_value_for_270_degrees,
+            )
+
+    @staticmethod
+    def get_beta(maximum_detail_score):
+        return (1 - maximum_detail_score) / maximum_detail_score
+
+    @staticmethod
+    def get_alpha(beta_value):
+        return log(1 / beta_value)
 
     @staticmethod
     def get_positive_votes(test_image, decision_tree_stumps):
@@ -473,14 +480,6 @@ class AdaBoost(object):
             if test_image[first_pixel_index] > test_image[second_pixel_index]:
                 p_votes += alpha_value
         return p_votes
-
-    @staticmethod
-    def get_beta(maximum_detail_score):
-        return (1 - maximum_detail_score) / maximum_detail_score
-
-    @staticmethod
-    def get_alpha(beta_value):
-        return log(1 / abs(beta_value))
 
     @staticmethod
     def get_stump(indexes, weight):
