@@ -1,5 +1,9 @@
 # a4
 
+##### NOTE: Please run the following command first thing after cloning:
+```shell script
+bash get_pickles.sh
+```
 ## KNN
 
 For our KKN implementation, we have two functions, one to handle the training data and one to generate predictions on the test data. The training function accepts the input training data file and output model file parameters specified when the program is executed. The training for KNN just consists of saving the entire set of training data to the model file for use later on in the testing function. The majority of the work is performed within the testing function. 
@@ -23,7 +27,7 @@ After the subset of the training data is assigned to a data frame, two more vari
 Once all of the test images have had a prediction made for them, we output the predictions to an output.txt file and then check to see how many predictions we got right compared to the true class label. By far the biggest challenge for this assignment was to get distance calculations between each training image and all of the images in the training data set to run quickly. We tried to vectorize the calculation, but couldn't figure out how to generate predictions for all test images versus all training images instead of looping through each test image one at a time. The best solution that provided a balance of runtime and accuracy was use less of the training data and find that sweet spot that ran quickly and still provided good predictions.
 
 
-## Neural Network
+## Neural Network [BEST]
 #### Please note that after [consulting with David](https://drive.google.com/file/d/19_FEnIYULNgX4wjnQWTzkmY-pXHR1TB-/view?usp=sharing) and forwarding the case to entire 551 staff, the code for this model and it's markdown report will be the same for both Kelly-Neha's repository and this repository, since this model was worked on primarily by Bobby.
 To build the neural network from scratch, we used the model Bobby had built for his 556 assignment that required him to build a model similar [to this](https://keras.io/examples/mnist_mlp/) that included Dense, Activation and Dropout layers with RMSProp optimization. The primary challenge was to figure out a way to preprocess the training images, since we had only 10000 images to work with. Even though those 10000 images could be rotated in 3 other normal degrees to get 30000 more, for the model it'd still be counted as a bit of overfitting because those are still the same images, with similar pixel densities, which a neural net can easily identify. We thought of scraping more images from flickr using the flickr api to get more training data but decided to move into another direction. Instead of going for the given 8x8 images, we went for the original 75x75 images that could be resized to 32x32 or 28x28 to get essentially more features for the model to play with. For that we wrote a separate script that goes through all images in train folder, rotates each to all 3 normal degrees (90, 180, 270) and return a flattened numpy array of the images. Given we used the pillow (PIL) package for image processing, some images (~16-18) were unable to be processed/reshaped to desired dimensions, so we ignored them. We got out with a numpy ndarray of shape: (40000, 2352) if 28x28x3 sized images or (40000, 3072) if 32x32x3 sized images. This array had a uint8 dtype and we had to normalize the values by dividing by 255.0 after converting the values to float32. We chose the labels as follows: 
 
@@ -89,4 +93,15 @@ Epochs: 35 <br/>
 We went with Adaboost decision tree for this part. It works by putting more weight on difficult to classify instances and less on those already handled well. Although we're going to be using adaboost for classifying orientation, it can also be used for regression.
 
 In Adaboost decision tree, we implement the simple concept of stumps. Decision tree stumps are the simplest model we could construct that would just guess the same label for every new image, no matter what it looked like. The accuracy would be best if we guess whichever answer, 0, 1(90), 2(180) or 3(270), is most common in the data. If, say, 60% of the examples are 90 degrees oriented, then we’ll get 60% accuracy just by guessing 1 every time. Simple as that.
-To approach this we relied heavily on online articles like [this](https://towardsdatascience.com/understanding-adaboost-2f94f22d5bfe) and [this](https://machinelearningmastery.com/boosting-and-adaboost-for-machine-learning/). We had to choose a certain number of random combinations of pixel pairs. After training and testing out our model on several varying number of combinations, we arrived at 1000 which gave us a decent accuracy in a reasonable amount of time.
+To approach this we relied heavily on online articles like [this](https://towardsdatascience.com/understanding-adaboost-2f94f22d5bfe) and [this](https://machinelearningmastery.com/boosting-and-adaboost-for-machine-learning/). We had to choose a certain number of random combinations of pixel pairs. After training and testing out our model on several varying number of combinations, we arrived at 1000 which gave us a decent accuracy in a reasonable amount of time. The results were as follows for different stumps:
+
+| Tree Stumps | Training accuracy | Running time |
+|:-----------:|:-----------------:|:------------:|
+|      5      |       62.22%      |  ~12 minutes |
+|      10     |       63.18%      |  ~25 minutes |
+|      20     |       63.92%      |  ~45 minutes |
+|      30     |       69.53%      |  ~65 minutes |
+|      60     |       67.40%      | ~140 minutes |
+|     100     |       68.12%      | ~210 minutes |
+
+The best accuracies were with 30-45 stumps.
