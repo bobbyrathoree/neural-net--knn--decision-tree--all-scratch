@@ -317,3 +317,7 @@ def to_categorical(y, num_classes=None, dtype="float32"):
     output_shape = input_shape + (num_classes,)
     categorical = np.reshape(categorical, output_shape)
     return categorical
+
+
+def calculate_loss_gradient(actual, predicted):
+    return -(actual - predicted)
