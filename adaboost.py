@@ -416,7 +416,7 @@ class AdaBoost:
         self.set_random_combinations()
 
         for i in range(self.decision_tree_stumps):
-            print(i, "stump")
+            print("Stump: ", i)
             self.set_initial_maximum_details()
 
             for indexes in self.combinations:
