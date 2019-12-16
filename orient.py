@@ -11,7 +11,7 @@ from adaboost import AdaBoost
 from nn_layers import Dense, Activation, Dropout
 from nn_model import start
 from nn_process_images import load_numpy_from_pickle
-from nn_utils import accuracy_score
+from nn_utils import accuracy_score, to_categorical
 from parse_text_files import parse_image_data
 
 
@@ -107,6 +107,7 @@ if __name__ == "__main__":
             trained_neural_network = load_model_from_pickle(file_name="nnet.pkl")
             X_test = load_numpy_from_pickle(file_name="X_test.pkl")
             y_test = load_numpy_from_pickle(file_name="y_test.pkl")
+            y_test = to_categorical(y_test, 4)
 
             # Get predictions
             y_pred = trained_neural_network.predict(X_test)
