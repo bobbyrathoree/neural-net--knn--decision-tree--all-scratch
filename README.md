@@ -1,6 +1,6 @@
 # a4
 
-##### NOTE: Please run the following command first thing after cloning:
+#### NOTE: Please run the following command first thing after cloning:
 ```shell script
 bash get_pickles.sh
 ```
