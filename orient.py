@@ -50,7 +50,7 @@ if __name__ == "__main__":
             KNN.knn_training(input_data_file, model_file)
         elif train_or_test == "test":
             KNN.knn_testing(model_file, input_data_file)
-    elif model == "tree":
+    elif model in ["tree", "best"]:
         if train_or_test == "train":
             # Train model
             data_vector, all_image_ids, images_counter = parse_image_data(
@@ -77,7 +77,7 @@ if __name__ == "__main__":
             trained_decision_tree = load_model_from_pickle(file_name="tree.pkl")
             trained_decision_tree.test(test_file_path="test_file.txt")
 
-    elif model in ["nnet", "best"]:
+    elif model == "nnet":
         if train_or_test == "train":
             trained_neural_network = start(
                 layers=[
